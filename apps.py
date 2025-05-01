@@ -6,7 +6,7 @@ from xgboost import XGBClassifier
 
 # Load the trained model and encoders
 best_xgb = XGBClassifier()
-best_xgb.load_model("best_xgb_models.json")
+best_xgb.load_model("best_xgb_model.json")
 one_hot_columns = joblib.load("one_hot_columns.pkl")
 label_encoder = joblib.load("label_encoder.pkl")
 scaler = joblib.load("scaler.pkl")
