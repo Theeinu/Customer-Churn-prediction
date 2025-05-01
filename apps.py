@@ -2,9 +2,11 @@ import streamlit as st
 import pandas as pd
 import joblib
 import numpy as np
+from xgboost import XGBClassifier
 
 # Load the trained model and encoders
-xgb_model = joblib.load("best_xgb_model.pkl")
+best_xgb = XGBClassifier()
+best_xgb.load_model("best_xgb_models.json")
 one_hot_columns = joblib.load("one_hot_columns.pkl")
 label_encoder = joblib.load("label_encoder.pkl")
 scaler = joblib.load("scaler.pkl")
@@ -36,7 +38,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.title("📊 Customer Churn Prediction App")
+st.title("📊US Bank Customer Churn Prediction App")
 st.write("Predict whether a customer is likely to churn based on their details.")
 
 # Input Fields
@@ -45,18 +47,18 @@ with st.form("churn_form"):
 
     col1, col2 = st.columns(2)
     with col1:
-        credit_score = st.number_input("Credit Score", min_value=0, max_value=900, value=600, step=10)
-        age = st.number_input("Age", min_value=18, max_value=100, value=35, step=1)
-        tenure = st.number_input("Tenure (Years)", min_value=0, max_value=40, value=3, step=1)
-        balance = st.number_input("Balance (USD)", min_value=0.0, max_value=1000000.0, value=50000.0, step=100.0)
-        estimated_salary = st.number_input("Estimated Salary (USD)", min_value=0.0, max_value=500000.0, value=70000.0, step=1000.0)
+        credit_score = st.number_input("Credit Score", min_value=0, max_value=10000, value=200, step=10)
+        age = st.number_input("Age", min_value=18, max_value=100, value=70, step=1)
+        tenure = st.number_input("Tenure (Years)", min_value=0, max_value=40, value=1, step=1)
+        balance = st.number_input("Balance (USD)", min_value=0.0, max_value=1000000.0, value=2000.0, step=100.0)
+        estimated_salary = st.number_input("Estimated Salary (USD)", min_value=0.0, max_value=500000.0, value=10000.0, step=1000.0)
 
     with col2:
-        geography = st.selectbox("Geography", ["France", "Germany", "Spain"])
-        gender = st.selectbox("Gender", ["Male", "Female"])
+        geography = st.selectbox("Geography", ["Germany", "France", "Spain"])
+        gender = st.selectbox("Gender", ["Female", "Male"])
         num_of_products = st.number_input("Number of Products", min_value=1, max_value=4, value=1, step=1)
-        has_cr_card = st.number_input("Has Credit Card (1 for Yes, 0 for No)", min_value=0, max_value=1, value=1, step=1)
-        is_active_member = st.number_input("Active Member (1 for Yes, 0 for No)", min_value=0, max_value=1, value=1, step=1)
+        has_cr_card = st.number_input("Has Credit Card (1 for Yes, 0 for No)", min_value=0, max_value=1, value=0, step=1)
+        is_active_member = st.number_input("Active Member (1 for Yes, 0 for No)", min_value=0, max_value=1, value=0, step=1)
 
     submit = st.form_submit_button("Predict Churn")
 
@@ -80,7 +82,7 @@ if submit:
     input_data = input_data.reindex(columns=one_hot_columns, fill_value=0)
     
     # Make prediction
-    prediction = xgb_model.predict(input_data)
+    prediction = best_xgb.predict(input_data)
     prediction_text = "This customer is **likely to churn.**" if prediction[0] == 1 else "This customer is **likely to stay.**"
 
     # Display result with UI styling
